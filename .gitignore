@@ -19,6 +19,16 @@ target/
 *.iml
 *.ipr
 
+# Maven Wrapper
+mvn/wrapper/
+
+# IDE или операционные системы
+.idea/
+.vscode/
+*.log
+
+
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
