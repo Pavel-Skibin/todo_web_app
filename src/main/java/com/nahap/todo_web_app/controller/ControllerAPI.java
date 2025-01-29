@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class Controller {
+public class ControllerAPI {
 
     @Autowired
     private UserService userService;
@@ -47,10 +47,6 @@ public class Controller {
         userService.saveUser(user);
         return user;
     }
-
-
-
-
 
     @GetMapping("/notes")
     public List<Task> showAllNotes() {

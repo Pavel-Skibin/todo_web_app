@@ -29,11 +29,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/notes/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/notes").hasRole("ADMIN")  // Только админ может видеть все заметки
+                        .requestMatchers("/api/notes/**").hasAnyRole("USER", "ADMIN")  // Остальные эндпоинты доступны всем
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/dashboard").authenticated()
                         .anyRequest().authenticated()
                 )
-                .formLogin(withDefaults())
+                .formLogin(form ->
+                        form.defaultSuccessUrl("/dashboard") )
                 .logout(withDefaults())
                 .httpBasic(withDefaults());
 
