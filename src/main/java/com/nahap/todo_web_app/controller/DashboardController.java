@@ -19,7 +19,6 @@ public class DashboardController {
         User securityUser = (User) authentication.getPrincipal();
         String username = securityUser.getUsername();
 
-        // Получаем нашего пользователя из базы данных
         com.nahap.todo_web_app.entity.User user = userService.getUserByUsername(username);
 
         String role = securityUser.getAuthorities().stream()
@@ -31,10 +30,10 @@ public class DashboardController {
 
         if ("ADMIN".equals(role)) {
             model.addAttribute("message", "Welcome Administrator " + username);
-            model.addAttribute("notesUrl", "/notes"); // Убрать api/
+            model.addAttribute("notesUrl", "/notes");
         } else {
             model.addAttribute("message", "Welcome " + username);
-            model.addAttribute("notesUrl", "/notes"); // Убрать api/ и user/
+            model.addAttribute("notesUrl", "/notes");
         }
 
         model.addAttribute("isAdmin", "ADMIN".equals(role));

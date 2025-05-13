@@ -30,13 +30,12 @@ public class NoteAccessAspect {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userService.getUserByUsername(authentication.getName());
 
-        // Если админ - разрешаем доступ
         if (authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return joinPoint.proceed();
         }
 
-        // Проверяем принадлежность заметки пользователю
+
         Task task = taskService.getTask(taskId);
         if (task.getUser().getId() == currentUser.getId()) {
             return joinPoint.proceed();

@@ -5,6 +5,7 @@ import com.nahap.todo_web_app.entity.User;
 import com.nahap.todo_web_app.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -14,29 +15,42 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
-
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import java.util.stream.Collectors;
+// voice:Voice/src/main/java/com/nahap/todo_web_app/config/SecurityConfig/1740137618937.wav
+
+
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-
 @Configuration
 @EnableWebSecurity
+// voice:Voice/src/main/java/com/nahap/todo_web_app/config/SecurityConfig/1740138048453.wav
+
+
+
 public class SecurityConfig {
+
+     // voice:Voice/src/main/java/com/nahap/todo_web_app/config/SecurityConfig/1739042703507.wav
 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/notes").hasRole("ADMIN")  // Только админ может видеть все заметки
-                        .requestMatchers("/api/notes/**").hasAnyRole("USER", "ADMIN")  // Остальные эндпоинты доступны всем
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                )
+                .authorizeHttpRequests(auth -> auth
+                        // Объединим все правила в одном authorizeHttpRequests
+                        .requestMatchers(HttpMethod.PUT, "/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/notes").hasRole("ADMIN")
+                        .requestMatchers("/api/notes/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .requestMatchers("/dashboard").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form ->
-                        form.defaultSuccessUrl("/dashboard") )
+                        form.defaultSuccessUrl("/dashboard"))
                 .logout(withDefaults())
                 .httpBasic(withDefaults());
 

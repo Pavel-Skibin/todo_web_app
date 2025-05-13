@@ -1,0 +1,115 @@
+<!--user-notes.html-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+<nav class="bg-white shadow-lg">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="flex justify-between items-center py-4">
+            <div class="flex items-center space-x-4">
+                <a th:href="@{/dashboard}" class="text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+                <h1 class="text-xl font-semibold text-gray-800">Manage Users</h1>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-6xl mx-auto mt-10 px-4">
+    <!-- User List -->
+    <div id="userList">
+        <!-- Users will be inserted here by JavaScript -->
+    </div>
+</main>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const csrfToken = /*[[${_csrf.token}]]*/ '';
+    const csrfHeaderName = /*[[${_csrf.headerName}]]*/ '';
+    /*]]>*/
+</script>
+
+<script>
+    // Загрузка пользователей
+    async function loadUsers() {
+        try {
+            const response = await fetch('/api/users', {
+                headers: {
+                    [csrfHeaderName]: csrfToken
+                }
+            });
+            const users = await response.json();
+            displayUsers(users);
+        } catch (error) {
+            console.error('Error loading users:', error);
+        }
+    }
+
+    // Отображение пользователей
+    function displayUsers(users) {
+        const userList = document.getElementById('userList');
+        userList.innerHTML = users.map(user => `
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300 mb-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">${user.username}</h3>
+                            <p class="text-gray-600">${user.email}</p>
+                        </div>
+                        <div class="flex space-x-4">
+                            <a href="/admin/users/${user.id}"
+                               class="text-blue-500 hover:text-blue-600">
+                                <i class="fas fa-tasks"></i>
+                                View Details
+                            </a>
+                            <button onclick="toggleUserBlock(${user.id}, ${!user.blocked})"
+                                    class="text-yellow-500 hover:text-yellow-600">
+                                <i class="fas fa-ban"></i>
+                                ${user.blocked ? 'Unblock' : 'Block'}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="px-2 py-1 text-sm rounded-full ${user.blocked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+                            ${user.blocked ? 'Blocked' : 'Active'}
+                        </span>
+                        <span class="ml-4 text-sm text-gray-500">
+                            Registered: ${new Date(user.registrationDate).toLocaleDateString()}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    // Блокировка/разблокировка пользователя
+    async function toggleUserBlock(userId, blocked) {
+        try {
+            const response = await fetch(`/api/users/${userId}/block`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeaderName]: csrfToken
+                },
+                body: JSON.stringify({ blocked })
+            });
+
+            if (response.ok) {
+                loadUsers(); // Перезагрузка списка пользователей
+            }
+        } catch (error) {
+            console.error('Error toggling user block status:', error);
+        }
+    }
+
+    // Загрузка пользователей при загрузке страницы
+    document.addEventListener('DOMContentLoaded', loadUsers);
+</script>
+</body>
+</html>
